@@ -19,8 +19,6 @@ bdd_etude$DEB_PER_REGLEMENT <- as.Date(bdd_etude$DEB_PER_REGLEMENT, format = "%d
 bdd_etude$FIN_PER_REGLEMENT <- as.Date(bdd_etude$FIN_PER_REGLEMENT, format = "%d/%m/%Y" )
 bdd_etude$DT_MISE_INVALIDITE <- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = "%d/%m/%Y" )
 
-A
-
 
 library(knitr)
 
@@ -29,3 +27,13 @@ kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100
 bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
 
 bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
+
+
+library(ggplot2)
+
+
+
+
+
+
+
