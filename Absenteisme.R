@@ -30,9 +30,11 @@ bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bd
 
 
 library(ggplot2)
-
-
-
+bdd_etude_ITT2<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095)  
+bdd_etude_ITT2$Survenance_Annee <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
+p<-ggplot(bdd_etude_ITT2, aes(x=bdd_etude_ITT2)) + 
+  geom_histogram()
+p
 
 
 
