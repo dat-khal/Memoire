@@ -30,12 +30,18 @@ bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bd
 
 
 library(ggplot2)
-bdd_etude_ITT2<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095)  
-bdd_etude_ITT2$Survenance_Annee <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
-p<-ggplot(bdd_etude_ITT2, aes(x=bdd_etude_ITT2)) + 
-  geom_histogram()
+bdd_etude_ITT<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095) 
+bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
+
+
+
+bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2007) 
+p<-ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) + 
+  geom_histogram(binwidth=1, fill="navy", color="yellow")
 p
 
+kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
+help(kable)
 
 
 

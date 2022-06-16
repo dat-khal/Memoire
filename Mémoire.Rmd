@@ -1,7 +1,12 @@
 ---
 
-title:"Etude du risque arrêt de travail"
+title :"Etude du risque arrêt de travail"
 ---
+## Packages
+```{r, include=TRUE}
+library(ggplot2)
+library(knitr)
+```
 
 ## Base de données
 
@@ -40,17 +45,17 @@ bdd_etude$DT_MISE_INVALIDITE <- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = "
 ### Ensemble des garanties présentes dans la base de données
   
 ```{r, include=TRUE}
-library(knitr)
-
 kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE))
 ```  
 
 ### Ajout de la variable nombre de jour couvert
 On introduit une nouvelle variable qui comptabilise le nombre de jours couverts durant le sinistre telle que :
 
-$Nb\space jour\space couvert = Date \space De\space Fin\space De\space Periode\space De\space Reglement-Date\space De\space Debut\space De\space Periode\space De\space Reglement +1$
+$Nb\space jour\space couvert = Fin\space de\space periode\space de\space règlement- Debut\space de\space periode\space de\space règlement +1$
 
 ```{r, include=TRUE}
+bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
+
 bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
 ``` 
 
@@ -58,11 +63,32 @@ bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bd
 Pour étudier le risque arrêt de travail, il s’agit de sélectionner dans la base de donnée uniquement les sinistres faisant de type “ITT”, c’est ce que l’on fait dans la suite en selectionnant les garantie contenant la mention “ITT”. De plus, parmis les données sélectionnées, nous considérons uniquement les sinistres d'une durée inférieure à 3 ans.
 
 ```{r, include=TRUE}
-bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
 
-bdd_etude_ITT2<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095)  
+bdd_etude_ITT<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095)  
 ```   
   
+# Statistiques descriptives
+
+### Evolution du nombre de sinistres par années de survenance
+
+Dans un premier temps, nous allons étudier l'evolution du nombre de sinistres arrêt de travail clos par année de survenance, volontairement les années 2021 et 2022 sont omises car incomplétes en données.
+
+```{r, echo=FALSE}
+bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
+
+bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee < 2021 & Survenance_Annee>2007)
+
+kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
+
+ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) + 
+  geom_histogram(binwidth=1, fill="navy", color="yellow") + theme_classic() +
+  labs(
+    title = "Evolution du nombre de sinistre par année de survenance",
+    x="Année de survenance",
+    y="Nombre de sinistre"
+  )
+``` 
+
 
 
 
