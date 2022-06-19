@@ -32,7 +32,7 @@ bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bd
 library(ggplot2)
 bdd_etude_ITT<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095) 
 bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
-
+bdd_etude_ITT$Survenance_Mois <- format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%B")
 
 
 bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2007) 
@@ -42,6 +42,21 @@ p
 
 kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
 help(kable)
+
+table(bdd_etude_ITT2$Survenance_Mois)
+# library
+install.packages("viridis")
+install.packages("hrbrthemes")
+
+library(ggridges)
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+
+bdd_etude_ITT3<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2012) 
+p<-ggplot(bdd_etude_ITT3, aes(x=`Survenance_Mois`,fill=`Survenance_Annee`)) + 
+  geom_histogram(binwidth=1, color="yellow")
+p
 
 
 
