@@ -58,5 +58,27 @@ p<-ggplot(bdd_etude_ITT3, aes(x=`Survenance_Mois`,fill=`Survenance_Annee`)) +
   geom_histogram(binwidth=1, color="yellow")
 p
 
+install.packages("gender")
+  library(genderBR)
+help("genderBR")
+gender("Guillaume")
+install.packages("remotes")
+remotes::install_github("lmullen/genderdata")
+test_sexe = genderBR::get_gender(as.character(bdd_etude_ITT3$PRENOM_ASSURE))
+table(test_sexe)
+head(test_sexe)
+
+head(bdd_etude_ITT3$NUM_CONTRAT)
+bdd_etude_ITT3$NUM_CONTRAT
+
+
+
+length(unique(bdd$NUM_DOSSIER))
+
+
+
+
+
+
 
 
