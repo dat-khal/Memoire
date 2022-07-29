@@ -58,6 +58,9 @@ p<-ggplot(bdd_etude_ITT3, aes(x=`Survenance_Mois`,fill=`Survenance_Annee`)) +
   geom_histogram(binwidth=1, color="yellow")
 p
 
+###########################################################################
+#### Trouver le sexe d'un assuré via son prénom
+
 install.packages("gender")
   library(genderBR)
 help("genderBR")
@@ -68,12 +71,48 @@ test_sexe = genderBR::get_gender(as.character(bdd_etude_ITT3$PRENOM_ASSURE))
 table(test_sexe)
 head(test_sexe)
 
-head(bdd_etude_ITT3$NUM_CONTRAT)
-bdd_etude_ITT3$NUM_CONTRAT
+#Pb de notation, les prénoms sont souvent dans la variable NOM
+#Solution : Fusionner Nom et Prénom puis séparer ensuite 
+
+
+###########################################################################
+##############Saisonnalité des arrêts de travail ##################
+###########################################################################
+
+ggplot(table(bdd_etude_ITT3$Survenance_Mois))
+bdd_etude_ITT3$Survenance_Saison <- as.factor(bdd_etude_ITT3$Survenance_Mois)
+levels(bdd_etude_ITT3$Survenance_Saison)<-c("ete","printemps",
+                                            "automne","hiver",
+                                            "hiver",
+                                            "ete","printemps",
+                                            "printemps","hiver",
+                                            "automne","automne",
+                                            "ete")
+
+table_mois <- table(bdd_etude_ITT3$Survenance_Mois)[c("janvier",'février',"mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre")]
+barplot(table_mois)
+table_saison <- table(bdd_etude_ITT3$Survenance_Saison)[c("printemps","ete","automne","hiver")]
+barplot(table_saison)
+
+
+graph.sais.mens <- ggplot(
+  subset(bdd_etude_ITT3,
+         Survenance_Annee==2020),
+  aes(x=Survenance_Mois,fill=Survenance_Mois)) +
+  geom_bar(stat="count")
+graph.sais.mens
+
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2021 & Survenance_Annee>2017) 
+bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
+
+graph.sais.mens <- ggplot(bdd_etude_ITT4,
+  aes(x=Survenance_Mois,fill=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge")
+graph.sais.mens
+bdd_etude_ITT4$sur
 
 
 
-length(unique(bdd$NUM_DOSSIER))
 
 
 
@@ -82,3 +121,7 @@ length(unique(bdd$NUM_DOSSIER))
 
 
 
+
+
+
+  

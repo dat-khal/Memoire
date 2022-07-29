@@ -80,6 +80,8 @@ Dans un premier temps, nous allons étudier l'evolution du nombre de sinistres a
 ```{r, echo=FALSE}
 bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
 
+bdd_etude_ITT$Survenance_Mois <- format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%B")
+
 bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee < 2021 & Survenance_Annee>2007)
 
 kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
@@ -96,10 +98,27 @@ ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) +
 ### Saisonalité des sinistres 
 
 
+```{r, echo=FALSE}
+bdd_etude_ITT3<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2012) 
+bdd_etude_ITT3$Survenance_Saison <- as.factor(bdd_etude_ITT3$Survenance_Mois)
+levels(bdd_etude_ITT3$Survenance_Saison)<-c("ete","printemps",
+                                            "automne","hiver",
+                                            "hiver",
+                                            "ete","printemps",
+                                            "printemps","hiver",
+                                            "automne","automne",
+                                            "ete")
+
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2021 & Survenance_Annee>2017) 
+bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
+
+graph.sais.mens <- ggplot(bdd_etude_ITT4,
+  aes(x=Survenance_Mois,fill=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge")
+graph.sais.mens
 
 
-
-
+``` 
 
 
 
