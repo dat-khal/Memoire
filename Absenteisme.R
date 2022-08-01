@@ -8,7 +8,7 @@ variables.selectionnees <- c("NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APE
                              "DT_EFFET_SITUATION_DOS","DAT_NAISSANCE_ASS","DAT_SURVENANCE_SIN","DEB_COUVERTURE","FIN_COUVERTURE",
                              "DEB_PER_REGLEMENT","FIN_PER_REGLEMENT","MNT_BASE","MNT_TOT_REGLEMENT","MNT_REVALORISE","NB_J_INDEMNISES",
                              "DT_MISE_INVALIDITE","MNT_BASE_IJ","MNT_REVALORISATION_IJ","MNT_SS_IJ","MNT_TIERS_IJ",
-                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","INVALIDITE_1ERE_CATEG")
+                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","INVALIDITE_1ERE_CATEG","CD_OPTION")
 bdd_etude <- bdd_2[,variables.selectionnees]
 bdd_etude$DAT_NAISSANCE_ASS <- as.Date(bdd_etude$DAT_NAISSANCE_ASS, format = "%d/%m/%Y" )
 bdd_etude$DT_EFFET_SITUATION_DOS <- as.Date(bdd_etude$DT_EFFET_SITUATION_DOS, format = "%d/%m/%Y" )
@@ -90,38 +90,110 @@ levels(bdd_etude_ITT3$Survenance_Saison)<-c("ete","printemps",
                                             "ete")
 
 table_mois <- table(bdd_etude_ITT3$Survenance_Mois)[c("janvier",'février',"mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre")]
-barplot(table_mois)
+#barplot(table_mois)
 table_saison <- table(bdd_etude_ITT3$Survenance_Saison)[c("printemps","ete","automne","hiver")]
-barplot(table_saison)
+#barplot(table_saison)
 
 
-graph.sais.mens <- ggplot(
-  subset(bdd_etude_ITT3,
-         Survenance_Annee==2020),
-  aes(x=Survenance_Mois,fill=Survenance_Mois)) +
-  geom_bar(stat="count")
-graph.sais.mens
-
-bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2021 & Survenance_Annee>2017) 
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2020 & Survenance_Annee>2016) 
 bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
 
-graph.sais.mens <- ggplot(bdd_etude_ITT4,
+graph.sais.mois <- ggplot(bdd_etude_ITT4,
   aes(x=Survenance_Mois,fill=Survenance_Annee)) +
   geom_bar(stat="count",position = "dodge")
-graph.sais.mens
-bdd_etude_ITT4$sur
+graph.sais.mois
+
+graph.sais.saison <- ggplot(bdd_etude_ITT4,
+                          aes(x=Survenance_Saison,fill=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge")
+graph.sais.saison
+
+
+
+###########################################################################
+####################Typologie des arrêts de travail########################
+###########################################################################
+
+bdd_etude_ITT3$Nb_jour_couvert
+
+type.arret.travail<-function(x){
+  if(x<=10){return(as.factor("court"))}
+  else if(x>10 & x<=90){return(as.factor("moyen"))}
+  else return(as.factor("long"))
+}
+
+bdd_etude_ITT3$Type_Arret = sapply(bdd_etude_ITT3$Nb_jour_couvert,type.arret.travail)
+
+table(bdd_etude_ITT3$Type_Arret)
+
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2020 & Survenance_Annee>2016) 
+bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
+
+graph.type.arret <- ggplot(bdd_etude_ITT4,
+                            aes(x=Type_Arret,fill=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge")
+graph.type.arret
 
 
 
 
+###########################################################################
+###############Arrêts de travail en fonction du collègue###################
+###########################################################################
+
+sort(table(bdd_etude_ITT3$CD_OPTION),decreasing=TRUE)
+n<-names(sort(table(bdd_etude_ITT3$CD_OPTION),decreasing=TRUE))
+code.option <- c(n[grepl("CAD",n)],n[grepl("NC",n)],n[grepl("ENS",n)])
+
+bdd_etude_ITT5 <- subset(bdd_etude_ITT3, CD_OPTION %in% code.option)
 
 
+bdd_etude_ITT5$Cat_Option <- as.factor(sapply(bdd_etude_ITT5$CD_OPTION,function(x){if(grepl("CAD",x)){"Cadre"} else if(grepl("NC",x)){"Non Cadre"} else if(grepl("ENS",x)){"Ensemble du personnel"} else {Divers}}))
+
+bdd_etude_ITT5<-subset(bdd_etude_ITT5,Survenance_Annee <= 2020 & Survenance_Annee>2012) 
+bdd_etude_ITT5$Survenance_Annee<-as.factor(bdd_etude_ITT5$Survenance_Annee)
 
 
+graph.type.coll <- ggplot(bdd_etude_ITT5,
+                           aes(x=Cat_Option,fill=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge")
+graph.type.coll
 
 
+###########################################################################
+#################Arrêts de travail en fonction de l'age####################
+###########################################################################
 
+bdd_etude_ITT5$Age <- as.integer((bdd_etude_ITT5$DAT_SURVENANCE_SIN-bdd_etude_ITT5$DAT_NAISSANCE_ASS)/365.25)
+sum(bdd_etude_ITT5$Age > 100)
+bdd_etude_ITT5 <- subset(bdd_etude_ITT5, Age <=62 & Age>15)
 
+quantile(bdd_etude_ITT5$Age, seq(0,1,by=0.25))
 
+newClassAge <- c(-Inf, 26, 37, 48,62, Inf)
 
+regrouprecode <- function(base, listvar, listlevel)
+{
+  for(i in 1:length(listvar))
+  {
+    if(is.factor(base[, listvar[i]]))
+      levels(base[, listvar[i]]) <- listlevel[[i]]
+    else
+    {
+      base[, listvar[i]] <- cut(base[, listvar[i]], listlevel[[i]])
+    }
+  }
   
+  base
+}
+
+baseage<- regrouprecode(bdd_etude_ITT5,c("Age"),list(newClassAge))
+
+
+graph.Age <- ggplot(baseage,
+                          aes(x=Type_Arret,fill=Age)) +
+  geom_bar(stat="count",position = "dodge")
+graph.Age
+
+
+
