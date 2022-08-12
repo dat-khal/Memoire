@@ -195,5 +195,29 @@ graph.Age <- ggplot(baseage,
   geom_bar(stat="count",position = "dodge")
 graph.Age
 
+###########################################################################
+#################Arrêts de travail en fonction de l'age####################
+###########################################################################
+
+c(baseage$NOM_ASSURE,baseage$PRENOM_ASSURE)
+summary(baseage)
+
+merge(baseage$NOM_ASSURE,baseage$PRENOM_ASSURE)
+help("merge")
+
+head(bdd_etude_ITT5$NOM_ASSURE)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
