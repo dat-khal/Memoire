@@ -418,7 +418,7 @@ variables.selectionnees &lt;- c(&quot;NUM_CONTRAT&quot;,&quot;NOM_ASSURE&quot;,&
                              &quot;DT_EFFET_SITUATION_DOS&quot;,&quot;DAT_NAISSANCE_ASS&quot;,&quot;DAT_SURVENANCE_SIN&quot;,&quot;DEB_COUVERTURE&quot;,&quot;FIN_COUVERTURE&quot;,
                              &quot;DEB_PER_REGLEMENT&quot;,&quot;FIN_PER_REGLEMENT&quot;,&quot;MNT_BASE&quot;,&quot;MNT_TOT_REGLEMENT&quot;,&quot;MNT_REVALORISE&quot;,&quot;NB_J_INDEMNISES&quot;,
                              &quot;DT_MISE_INVALIDITE&quot;,&quot;MNT_BASE_IJ&quot;,&quot;MNT_REVALORISATION_IJ&quot;,&quot;MNT_SS_IJ&quot;,&quot;MNT_TIERS_IJ&quot;,
-                             &quot;LIB_ASSIETTE_SALAIRE&quot;,&quot;VALEUR_SALAIRE&quot;,&quot;LIB_CHOIX_DE_PRESTATION&quot;,&quot;INVALIDITE_1ERE_CATEG&quot;)
+                             &quot;LIB_ASSIETTE_SALAIRE&quot;,&quot;VALEUR_SALAIRE&quot;,&quot;LIB_CHOIX_DE_PRESTATION&quot;,&quot;CD_OPTION&quot;)
 bdd_etude &lt;- bdd_2[,variables.selectionnees]
 bdd_etude$DAT_NAISSANCE_ASS &lt;- as.Date(bdd_etude$DAT_NAISSANCE_ASS, format = &quot;%d/%m/%Y&quot; )
 bdd_etude$DT_EFFET_SITUATION_DOS &lt;- as.Date(bdd_etude$DT_EFFET_SITUATION_DOS, format = &quot;%d/%m/%Y&quot; )
@@ -427,16 +427,140 @@ bdd_etude$DEB_COUVERTURE &lt;- as.Date(bdd_etude$DEB_COUVERTURE, format = &quot;
 bdd_etude$FIN_COUVERTURE &lt;- as.Date(bdd_etude$FIN_COUVERTURE, format = &quot;%d/%m/%Y&quot; )
 bdd_etude$DEB_PER_REGLEMENT &lt;- as.Date(bdd_etude$DEB_PER_REGLEMENT, format = &quot;%d/%m/%Y&quot; )
 bdd_etude$FIN_PER_REGLEMENT &lt;- as.Date(bdd_etude$FIN_PER_REGLEMENT, format = &quot;%d/%m/%Y&quot; )
-bdd_etude$DT_MISE_INVALIDITE &lt;- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = &quot;%d/%m/%Y&quot; )</code></pre>
-</div>
-<div id="ensemble-des-garanties-presentes-dans-la-base-de-donnees" class="section level3">
-<h3>Ensemble des garanties présentes dans la base de données</h3>
-<pre class="r"><code>kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)&gt;100], decreasing = TRUE))</code></pre>
+bdd_etude$DT_MISE_INVALIDITE &lt;- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = &quot;%d/%m/%Y&quot; )
+
+
+description.variables &lt;-c(&quot;Numéro de contrat&quot;,&quot;Nom de l&#39;assuré&quot;,&quot;Prénom de l&#39;assuré&quot;,&quot;Nom de la société apéritrice&quot;,&quot;Nom de la garantie élémentaire&quot;,
+  &quot;Motif du sinistre&quot;,&quot;Date d&#39;effet du sinsitre&quot;,&quot;Date de naissance de l&#39;assuré&quot;,&quot;Date de survenance du sinistre&quot;,
+  &quot;Date de début de couverture&quot;,&quot;Date de fin de couverture&quot;, &quot;Date de début de la période de réglement&quot;, &quot;Date de fin de la période de réglement&quot;,
+  &quot;Montant de base ou montant de la rente annualisée&quot;, &quot;Montant total réglé&quot;, &quot;Montant total revalorisé&quot;, &quot;Nombre de jours indemnisés&quot;,
+  &quot;Date de mise en invalidité dans le cas d&#39;un dossier passé en invalidité&quot;, &quot;Montant de l&#39;indemnité journaliere&quot;, &quot;Montant de l&#39;IJ revalorisée&quot;,
+  &quot;Montant l&#39;IJ versé par la Sécurite Sociale&quot;,&quot;Montant tiers payant de l&#39;IJ&quot;, &quot;Libellé de l&#39;assiette de salaire&quot;, &quot;Montant du salaire brut annuel de l&#39;assuré&quot;,
+  &quot;Libellé de la prestation&quot;, &quot;Code option&quot;)
+kable(cbind(variables.selectionnees,description.variables),col.names = c(&quot;Nom des variables&quot;,&quot;Description&quot;) )</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Var1</th>
-<th align="right">Freq</th>
+<th align="left">Nom des variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">NUM_CONTRAT</td>
+<td align="left">Numéro de contrat</td>
+</tr>
+<tr class="even">
+<td align="left">NOM_ASSURE</td>
+<td align="left">Nom de l’assuré</td>
+</tr>
+<tr class="odd">
+<td align="left">PRENOM_ASSURE</td>
+<td align="left">Prénom de l’assuré</td>
+</tr>
+<tr class="even">
+<td align="left">SOC_APERITRICE</td>
+<td align="left">Nom de la société apéritrice</td>
+</tr>
+<tr class="odd">
+<td align="left">GAR_ELEMENTAIRE</td>
+<td align="left">Nom de la garantie élémentaire</td>
+</tr>
+<tr class="even">
+<td align="left">MOTIF_SITUATION</td>
+<td align="left">Motif du sinistre</td>
+</tr>
+<tr class="odd">
+<td align="left">DT_EFFET_SITUATION_DOS</td>
+<td align="left">Date d’effet du sinsitre</td>
+</tr>
+<tr class="even">
+<td align="left">DAT_NAISSANCE_ASS</td>
+<td align="left">Date de naissance de l’assuré</td>
+</tr>
+<tr class="odd">
+<td align="left">DAT_SURVENANCE_SIN</td>
+<td align="left">Date de survenance du sinistre</td>
+</tr>
+<tr class="even">
+<td align="left">DEB_COUVERTURE</td>
+<td align="left">Date de début de couverture</td>
+</tr>
+<tr class="odd">
+<td align="left">FIN_COUVERTURE</td>
+<td align="left">Date de fin de couverture</td>
+</tr>
+<tr class="even">
+<td align="left">DEB_PER_REGLEMENT</td>
+<td align="left">Date de début de la période de réglement</td>
+</tr>
+<tr class="odd">
+<td align="left">FIN_PER_REGLEMENT</td>
+<td align="left">Date de fin de la période de réglement</td>
+</tr>
+<tr class="even">
+<td align="left">MNT_BASE</td>
+<td align="left">Montant de base ou montant de la rente annualisée</td>
+</tr>
+<tr class="odd">
+<td align="left">MNT_TOT_REGLEMENT</td>
+<td align="left">Montant total réglé</td>
+</tr>
+<tr class="even">
+<td align="left">MNT_REVALORISE</td>
+<td align="left">Montant total revalorisé</td>
+</tr>
+<tr class="odd">
+<td align="left">NB_J_INDEMNISES</td>
+<td align="left">Nombre de jours indemnisés</td>
+</tr>
+<tr class="even">
+<td align="left">DT_MISE_INVALIDITE</td>
+<td align="left">Date de mise en invalidité dans le cas d’un dossier passé en invalidité</td>
+</tr>
+<tr class="odd">
+<td align="left">MNT_BASE_IJ</td>
+<td align="left">Montant de l’indemnité journaliere</td>
+</tr>
+<tr class="even">
+<td align="left">MNT_REVALORISATION_IJ</td>
+<td align="left">Montant de l’IJ revalorisée</td>
+</tr>
+<tr class="odd">
+<td align="left">MNT_SS_IJ</td>
+<td align="left">Montant l’IJ versé par la Sécurite Sociale</td>
+</tr>
+<tr class="even">
+<td align="left">MNT_TIERS_IJ</td>
+<td align="left">Montant tiers payant de l’IJ</td>
+</tr>
+<tr class="odd">
+<td align="left">LIB_ASSIETTE_SALAIRE</td>
+<td align="left">Libellé de l’assiette de salaire</td>
+</tr>
+<tr class="even">
+<td align="left">VALEUR_SALAIRE</td>
+<td align="left">Montant du salaire brut annuel de l’assuré</td>
+</tr>
+<tr class="odd">
+<td align="left">LIB_CHOIX_DE_PRESTATION</td>
+<td align="left">Libellé de la prestation</td>
+</tr>
+<tr class="even">
+<td align="left">CD_OPTION</td>
+<td align="left">Code option</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="ensemble-des-garanties-presentes-dans-la-base-de-donnees" class="section level3">
+<h3>Ensemble des garanties présentes dans la base de données</h3>
+<pre class="r"><code>kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)&gt;100], decreasing = TRUE), col.names = c(&quot;Nom de la garantie&quot;,&quot;Fréquence&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Nom de la garantie</th>
+<th align="right">Fréquence</th>
 </tr>
 </thead>
 <tbody>

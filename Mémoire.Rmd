@@ -35,7 +35,7 @@ variables.selectionnees <- c("NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APE
                              "DT_EFFET_SITUATION_DOS","DAT_NAISSANCE_ASS","DAT_SURVENANCE_SIN","DEB_COUVERTURE","FIN_COUVERTURE",
                              "DEB_PER_REGLEMENT","FIN_PER_REGLEMENT","MNT_BASE","MNT_TOT_REGLEMENT","MNT_REVALORISE","NB_J_INDEMNISES",
                              "DT_MISE_INVALIDITE","MNT_BASE_IJ","MNT_REVALORISATION_IJ","MNT_SS_IJ","MNT_TIERS_IJ",
-                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","INVALIDITE_1ERE_CATEG")
+                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","CD_OPTION")
 bdd_etude <- bdd_2[,variables.selectionnees]
 bdd_etude$DAT_NAISSANCE_ASS <- as.Date(bdd_etude$DAT_NAISSANCE_ASS, format = "%d/%m/%Y" )
 bdd_etude$DT_EFFET_SITUATION_DOS <- as.Date(bdd_etude$DT_EFFET_SITUATION_DOS, format = "%d/%m/%Y" )
@@ -45,12 +45,22 @@ bdd_etude$FIN_COUVERTURE <- as.Date(bdd_etude$FIN_COUVERTURE, format = "%d/%m/%Y
 bdd_etude$DEB_PER_REGLEMENT <- as.Date(bdd_etude$DEB_PER_REGLEMENT, format = "%d/%m/%Y" )
 bdd_etude$FIN_PER_REGLEMENT <- as.Date(bdd_etude$FIN_PER_REGLEMENT, format = "%d/%m/%Y" )
 bdd_etude$DT_MISE_INVALIDITE <- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = "%d/%m/%Y" )
+
+
+description.variables <-c("Numéro de contrat","Nom de l'assuré","Prénom de l'assuré","Nom de la société apéritrice","Nom de la garantie élémentaire",
+  "Motif du sinistre","Date d'effet du sinsitre","Date de naissance de l'assuré","Date de survenance du sinistre",
+  "Date de début de couverture","Date de fin de couverture", "Date de début de la période de réglement", "Date de fin de la période de réglement",
+  "Montant de base ou montant de la rente annualisée", "Montant total réglé", "Montant total revalorisé", "Nombre de jours indemnisés",
+  "Date de mise en invalidité dans le cas d'un dossier passé en invalidité", "Montant de l'indemnité journaliere", "Montant de l'IJ revalorisée",
+  "Montant l'IJ versé par la Sécurite Sociale","Montant tiers payant de l'IJ", "Libellé de l'assiette de salaire", "Montant du salaire brut annuel de l'assuré",
+  "Libellé de la prestation", "Code option")
+kable(cbind(variables.selectionnees,description.variables),col.names = c("Nom des variables","Description") )
 ```
 
 ### Ensemble des garanties présentes dans la base de données
   
 ```{r, include=TRUE}
-kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE))
+kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE), col.names = c("Nom de la garantie","Fréquence"))
 ```  
 
 ### Selection de la garantie arrêt de travail
