@@ -223,6 +223,9 @@ head(bdd_etude_ITT5$NOM_ASSURE)
 
 
 
+#Calculer la durée annuelle moyenne des arrêts de travail
+
+
 
 
 
