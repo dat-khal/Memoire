@@ -3,7 +3,7 @@ load("bdd.RData")
 
 
 a<-unique(bdd$SITUATION_DOSSIER)[3]
-bdd_2<-subset(subset(bdd,SITUATION_DOSSIER == a), MNT_TOT_REGLEMENT > 0)  #On considère uniquement l'ensemble des dossiers classés CLOS
+bdd_2<-subset(bdd, MNT_TOT_REGLEMENT > 0)  
 variables.selectionnees <- c("NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APERITRICE","GAR_ELEMENTAIRE","MOTIF_SITUATION",
                              "DT_EFFET_SITUATION_DOS","DAT_NAISSANCE_ASS","DAT_SURVENANCE_SIN","DEB_COUVERTURE","FIN_COUVERTURE",
                              "DEB_PER_REGLEMENT","FIN_PER_REGLEMENT","MNT_BASE","MNT_TOT_REGLEMENT","MNT_REVALORISE","NB_J_INDEMNISES",
@@ -24,7 +24,11 @@ library(knitr)
 
 kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE))
 
+gar.inv<-as.factor(unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("INV",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))])
+gar.ipt<-unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("IPT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))]
+
 bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
+bdd_etude_INV <- rbind(subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.ipt))
 
 bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
 
@@ -221,18 +225,12 @@ help("merge")
 
 head(bdd_etude_ITT5$NOM_ASSURE)
 
-
+bdd_etude_ITT5$Survenance_Annee
 
 #Calculer la durée annuelle moyenne des arrêts de travail
 
 
-
-
-
-
-
-
-
+bdd$LIB_CONTRACTANT
 
 
 

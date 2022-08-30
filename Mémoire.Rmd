@@ -30,7 +30,7 @@ summary(bdd)
 
 ```{r, include=TRUE}
 a<-unique(bdd$SITUATION_DOSSIER)[3]
-bdd_2<-subset(subset(bdd,SITUATION_DOSSIER == a), MNT_TOT_REGLEMENT > 0)  #On considère uniquement l'ensemble des dossiers classés CLOS
+bdd_2<-subset(bdd, MNT_TOT_REGLEMENT > 0)  
 variables.selectionnees <- c("NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APERITRICE","GAR_ELEMENTAIRE","MOTIF_SITUATION",
                              "DT_EFFET_SITUATION_DOS","DAT_NAISSANCE_ASS","DAT_SURVENANCE_SIN","DEB_COUVERTURE","FIN_COUVERTURE",
                              "DEB_PER_REGLEMENT","FIN_PER_REGLEMENT","MNT_BASE","MNT_TOT_REGLEMENT","MNT_REVALORISE","NB_J_INDEMNISES",
@@ -67,7 +67,12 @@ kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100
 Pour étudier le risque arrêt de travail, il s’agit de sélectionner dans la base de donnée uniquement les sinistres de type ITT : Incapacité temporaire de travail. C’est ce que l’on fait dans la suite en ne selectionnant que les garantie contenant la mention “ITT”. De plus, parmis les données sélectionnées, nous considérons uniquement les sinistres d'une durée inférieure à 3 ans, durée maximum légale de l'incapacité.
 
 ```{r, include=TRUE}
-bdd_etude_ITT <- subset(bdd_etude,GAR_ELEMENTAIRE%in%unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
+gar.inv<-as.factor(unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("INV",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))])
+gar.ipt<-unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("IPT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))]
+
+bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
+bdd_etude_INV <- rbind(subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.ipt))
+
 ```   
 
 ### Ajout de la variable nombre de jour couvert
@@ -89,12 +94,17 @@ Dans un premier temps, nous allons étudier l'evolution du nombre de sinistres a
 
 ```{r, echo=FALSE}
 bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
+bdd_etude_INV$Survenance_Annee <- as.numeric(format(bdd_etude_INV$DAT_SURVENANCE_SIN,"%Y"))
 
 bdd_etude_ITT$Survenance_Mois <- format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%B")
+bdd_etude_INV$Survenance_Mois <- format(bdd_etude_INV$DAT_SURVENANCE_SIN,"%B")
 
-bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee < 2021 & Survenance_Annee>2007)
+bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2012)
+bdd_etude_INV2<-subset(bdd_etude_INV,Survenance_Annee <= 2021 & Survenance_Annee>2012)
 
-kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
+kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee))+table(as.factor(bdd_etude_INV2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre arrêt de travail"))
+
+bdd_etude_ITT2$Survenance_Annee <- as.factor(bdd_etude_ITT$Survenance_Annee)
 
 ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) + 
   geom_histogram(binwidth=1, fill="navy", color="yellow") + theme_classic() +
