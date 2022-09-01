@@ -38,11 +38,29 @@ bdd_etude_ITT<-subset(bdd_etude_ITT,Nb_jour_couvert <= 1095)
 bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
 bdd_etude_ITT$Survenance_Mois <- format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%B")
 
+bdd_etude_ITT$Survenance_Annee <- as.numeric(format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%Y"))
+bdd_etude_INV$Survenance_Annee <- as.numeric(format(bdd_etude_INV$DAT_SURVENANCE_SIN,"%Y"))
+
+bdd_etude_ITT$Survenance_Mois <- format(bdd_etude_ITT$DAT_SURVENANCE_SIN,"%B")
+bdd_etude_INV$Survenance_Mois <- format(bdd_etude_INV$DAT_SURVENANCE_SIN,"%B")
+
+bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2012)
+bdd_etude_INV2<-subset(bdd_etude_INV,Survenance_Annee <= 2021 & Survenance_Annee>2012)
 
 bdd_etude_ITT2<-subset(bdd_etude_ITT,Survenance_Annee <= 2021 & Survenance_Annee>2007) 
+bdd_etude_ITT2$Survenance_Annee=as.factor(bdd_etude_ITT2$Survenance_Annee)
 p<-ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) + 
   geom_histogram(binwidth=1, fill="navy", color="yellow")
 p
+
+graph.evol.annee <- ggplot(bdd_etude_ITT2,
+                          aes(x=Survenance_Annee)) +
+  geom_bar(stat="count",position = "dodge",fill="navy", color="yellow")
+graph.evol.annee
+
+
+
+
 
 kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
 
@@ -113,20 +131,28 @@ table_saison <- table(bdd_etude_ITT3$Survenance_Saison)[c("printemps","ete","aut
 #barplot(table_saison)
 
 
-bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2020 & Survenance_Annee>2016) 
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee != 2020 & Survenance_Annee>2017) 
 bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
 
 graph.sais.mois <- ggplot(bdd_etude_ITT4,
   aes(x=Survenance_Mois,fill=Survenance_Annee)) +
   geom_bar(stat="count",position = "dodge")
-graph.sais.mois
+graph.sais.mois + scale_x_discrete(limits=c("janvier",'février',"mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"))
 
 graph.sais.saison <- ggplot(bdd_etude_ITT4,
                           aes(x=Survenance_Saison,fill=Survenance_Annee)) +
   geom_bar(stat="count",position = "dodge")
-graph.sais.saison
+graph.sais.saison+ scale_x_discrete(limits=c("printemps","ete","automne","hiver"))
 
 
+table_saison_2018 <- table(subset(bdd_etude_ITT3,Survenance_Annee == 2018)$Survenance_Saison)
+table_saison_2019 <- table(subset(bdd_etude_ITT3,Survenance_Annee == 2019)$Survenance_Saison)
+table_saison_2018
+table_saison_2019
+
+table_saison_2018["hiver"]/table_saison_2018["ete"] #Hausse de 34,7% entre ete et hiver
+
+table_saison_2018["automne"]/table_saison_2018["ete"]
 
 ###########################################################################
 ####################Typologie des arrêts de travail########################
@@ -135,7 +161,8 @@ graph.sais.saison
 bdd_etude_ITT3$Nb_jour_couvert
 
 type.arret.travail<-function(x){
-  if(x<=10){return(as.factor("court"))}
+  if(is.na(x)){return(as.factor("NA"))}
+  else if(x<=10){return(as.factor("court"))}
   else if(x>10 & x<=90){return(as.factor("moyen"))}
   else return(as.factor("long"))
 }
@@ -144,7 +171,7 @@ bdd_etude_ITT3$Type_Arret = sapply(bdd_etude_ITT3$Nb_jour_couvert,type.arret.tra
 
 table(bdd_etude_ITT3$Type_Arret)
 
-bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2020 & Survenance_Annee>2016) 
+bdd_etude_ITT4<-subset(bdd_etude_ITT3,Survenance_Annee <= 2021 & Survenance_Annee>2017 & Type_Arret!="NA") 
 bdd_etude_ITT4$Survenance_Annee<-as.factor(bdd_etude_ITT4$Survenance_Annee)
 
 graph.type.arret <- ggplot(bdd_etude_ITT4,

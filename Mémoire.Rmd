@@ -104,15 +104,8 @@ bdd_etude_INV2<-subset(bdd_etude_INV,Survenance_Annee <= 2021 & Survenance_Annee
 
 kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee))+table(as.factor(bdd_etude_INV2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre arrêt de travail"))
 
-bdd_etude_ITT2$Survenance_Annee <- as.factor(bdd_etude_ITT$Survenance_Annee)
 
-ggplot(bdd_etude_ITT2, aes(x=`Survenance_Annee`)) + 
-  geom_histogram(binwidth=1, fill="navy", color="yellow") + theme_classic() +
-  labs(
-    title = "Evolution du nombre de sinistre par année de survenance",
-    x="Année de survenance",
-    y="Nombre de sinistre"
-  )
+
 ``` 
 
 ### Saisonalité des sinistres 
