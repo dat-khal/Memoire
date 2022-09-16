@@ -179,7 +179,7 @@ graph.type.arret <- ggplot(bdd_etude_ITT4,
   geom_bar(stat="count",position = "dodge")
 graph.type.arret
 
-
+length(unique(bdd_etude$GAR_ELEMENTAIRE))
 
 
 ###########################################################################
@@ -255,7 +255,7 @@ head(bdd_etude_ITT5$NOM_ASSURE)
 bdd_etude_ITT5$Survenance_Annee
 
 #Calculer la durée annuelle moyenne des arrêts de travail
-
+# Duree = date fin couv - date survenance
 
 bdd$LIB_CONTRACTANT
 
