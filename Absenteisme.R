@@ -1,5 +1,5 @@
-setwd("D:/Data/b300yno/Desktop/MEMOIRE/Donnée")
-load("bdd.RData")
+setwd("C:/Users/KDatsi/OneDrive - EY/Documents/PERSONNEL/BDD Mémoire Actuariat Absentéisme")
+bdd <- read.csv("bdd.csv")
 
 
 a<-unique(bdd$SITUATION_DOSSIER)[3]
