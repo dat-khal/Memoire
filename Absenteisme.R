@@ -1,14 +1,14 @@
 setwd("C:/Users/KDatsi/OneDrive - EY/Documents/PERSONNEL/BDD Mémoire Actuariat Absentéisme")
-bdd <- read.csv("bdd.csv")
+bdd <- read.csv("bdd_etude.csv")
 
 
 a<-unique(bdd$SITUATION_DOSSIER)[3]
 bdd_2<-subset(bdd, MNT_TOT_REGLEMENT > 0)  
-variables.selectionnees <- c("NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APERITRICE","GAR_ELEMENTAIRE","MOTIF_SITUATION",
+variables.selectionnees <- c("cle_unique_dsn","NUM_CONTRAT","NOM_ASSURE","PRENOM_ASSURE","SOC_APERITRICE","GAR_ELEMENTAIRE","MOTIF_SITUATION",
                              "DT_EFFET_SITUATION_DOS","DAT_NAISSANCE_ASS","DAT_SURVENANCE_SIN","DEB_COUVERTURE","FIN_COUVERTURE",
                              "DEB_PER_REGLEMENT","FIN_PER_REGLEMENT","MNT_BASE","MNT_TOT_REGLEMENT","MNT_REVALORISE","NB_J_INDEMNISES",
                              "DT_MISE_INVALIDITE","MNT_BASE_IJ","MNT_REVALORISATION_IJ","MNT_SS_IJ","MNT_TIERS_IJ",
-                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","CD_OPTION")
+                             "LIB_ASSIETTE_SALAIRE","VALEUR_SALAIRE","LIB_CHOIX_DE_PRESTATION","CD_OPTION","NIR")
 bdd_etude <- bdd_2[,variables.selectionnees]
 bdd_etude$DAT_NAISSANCE_ASS <- as.Date(bdd_etude$DAT_NAISSANCE_ASS, format = "%d/%m/%Y" )
 bdd_etude$DT_EFFET_SITUATION_DOS <- as.Date(bdd_etude$DT_EFFET_SITUATION_DOS, format = "%d/%m/%Y" )
@@ -27,10 +27,25 @@ kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100
 gar.inv<-as.factor(unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("INV",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))])
 gar.ipt<-unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("IPT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))]
 
+bdd_etude$Nb_jour_couvert <- as.numeric(bdd_etude$FIN_PER_REGLEMENT - bdd_etude$DAT_SURVENANCE_SIN +1)
+bdd_etude<- subset(bdd_etude,Nb_jour_couvert>=0)
+bdd_etude$SEXE <-sapply(bdd_etude$NIR,function(x){if(substr(x,start=1,stop = 1)==1) "M" else "F"})
+
+bdd_etude$DEP_NAISS <-substr(bdd_etude$NIR,start=6,stop = 7)
+bdd_etude$AGE <- as.integer((bdd_etude$DAT_SURVENANCE_SIN-bdd_etude$DAT_NAISSANCE_ASS)/365.25)
+
+n<-names(sort(table(bdd_etude$CD_OPTION),decreasing=TRUE))
+code.option <- c(n[grepl("CAD",n)],n[grepl("NC",n)],n[grepl("ENS",n)])
+
+bdd_etude <- subset(bdd_etude, CD_OPTION %in% code.option)
+
+bdd_etude$CAT_PRO <- as.factor(sapply(bdd_etude$CD_OPTION,function(x){if(grepl("CAD",x)){"Cadre"} else if(grepl("NC",x)){"Non Cadre"} else if(grepl("ENS",x)){"Ensemble du personnel"} else {Divers}}))
+bdd_etude$Survenance_Annee <- as.numeric(format(bdd_etude$DAT_SURVENANCE_SIN,"%Y"))
+bdd_etude$Survenance_Mois <- format(bdd_etude$DAT_SURVENANCE_SIN,"%B")
+
 bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
 bdd_etude_INV <- rbind(subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.ipt))
 
-bdd_etude_ITT$Nb_jour_couvert <- as.numeric(bdd_etude_ITT$FIN_PER_REGLEMENT - bdd_etude_ITT$DEB_PER_REGLEMENT +1)
 
 
 library(ggplot2)
@@ -260,6 +275,103 @@ bdd_etude_ITT5$Survenance_Annee
 bdd$LIB_CONTRACTANT
 
 
+
+
+###########################################################################
+#################         Suppression doublon          ####################
+###########################################################################
+
+
+bdd_etude$CLE_DOUBLON_1 <-paste(bdd_etude$NOM_ASSURE,bdd_etude$PRENOM_ASSURE,bdd_etude$DAT_NAISSANCE_ASS,bdd_etude$DAT_SURVENANCE_SIN)
+bdd_etude$CLE_DOUBLON_2 <-paste(gsub("\\s+", "", bdd_etude$NOM_ASSURE),gsub("\\s+", "", bdd_etude$PRENOM_ASSURE),gsub("\\s+", "", bdd_etude$DAT_NAISSANCE_ASS),gsub("\\s+", "", bdd_etude$DAT_SURVENANCE_SIN),gsub("\\s+", "", bdd_etude$FIN_PER_REGLEMENT))
+gsub("\\s+", "", base.202208$NOM_ASSURE)
+head(bdd_etude$CLE_DOUBLON_2)
+
+
+duplicates <- duplicated(bdd_etude$CLE_DOUBLON_2)
+bdd_etude_nd<-bdd_etude[!duplicates,]
+
+bdd_etude_nd_ITT <- subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% unique(bdd_etude_nd$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude_nd$GAR_ELEMENTAIRE)))] )
+bdd_etude_nd_INV <- rbind(subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar.ipt))
+
+
+bdd_etude_nd$CLE_DOUBLON_1 <-paste(bdd_etude_nd$NOM_ASSURE,bdd_etude_nd$PRENOM_ASSURE,bdd_etude_nd$DAT_NAISSANCE_ASS,bdd_etude_nd$DAT_SURVENANCE_SIN)
+
+duplicates_nd <- duplicated(bdd_etude_nd$CLE_DOUBLON_1)
+sum(duplicates_nd)
+
+sum(duplicated(bdd_etude))
+
+###########################################################################
+#################             Modélisation GLM         ####################
+###########################################################################
+
+
+model_ITT <- glm(Nb_jour_couvert ~ SEXE + DEP_NAISS + AGE + CAT_PRO, data = bdd_etude_nd_ITT, family = poisson())
+summary(model_ITT)
+
+
+
+head(bdd_etude_nd_ITT)
+
+
+###########################################################################
+#################       Censure à droite des dates     ####################
+###########################################################################
+
+
+
+
+# Définir l'année pour laquelle vous souhaitez obtenir le nombre total de jours d'arrêt
+year <- 2020
+
+# Sélectionner les données pour cette année, incluant les arrêts dont la date de début ou de fin se trouve en dehors de l'année
+data_year <- subset(bdd_etude_nd, as.Date(bdd_etude_nd$DAT_SURVENANCE_SIN, "%Y-%m-%d") <= as.Date(paste0(year, "-12-31"), "%Y-%m-%d") & as.Date(bdd_etude_nd$FIN_PER_REGLEMENT, "%Y-%m-%d") >= as.Date(paste0(year, "-01-01"), "%Y-%m-%d"))
+
+# Ajouter une colonne pour le nombre de jours d'arrêt pour chaque arrêt
+data_year$jours_arrets <- as.numeric(pmax(0, difftime(pmin(as.Date(data_year$FIN_PER_REGLEMENT, "%Y-%m-%d"), as.Date(paste0(year, "-12-31"), "%Y-%m-%d")), pmax(as.Date(data_year$DAT_SURVENANCE_SIN, "%Y-%m-%d"), as.Date(paste0(year, "-01-01"), "%Y-%m-%d")), units = "days") + 1))
+
+# Calculer le nombre total de jours d'arrêt pour l'année
+total_jours_arrets <- sum(data_year$jours_arrets)
+
+# Imprimer le nombre total de jours d'arrêt
+print(total_jours_arrets)
+
+data.AT <-data.frame()
+agr_dt<-data.frame()
+for (year in 2015:2022){
+  data_year <- subset(bdd_etude_nd, as.Date(bdd_etude_nd$DAT_SURVENANCE_SIN, "%Y-%m-%d") <= as.Date(paste0(year, "-12-31"), "%Y-%m-%d") & as.Date(bdd_etude_nd$FIN_PER_REGLEMENT, "%Y-%m-%d") >= as.Date(paste0(year, "-01-01"), "%Y-%m-%d"))
+  
+  # Ajouter une colonne pour le nombre de jours d'arrêt pour chaque arrêt
+  data_year$jours_arrets <- as.numeric(pmax(0, difftime(pmin(as.Date(data_year$FIN_PER_REGLEMENT, "%Y-%m-%d"), as.Date(paste0(year, "-12-31"), "%Y-%m-%d")), pmax(as.Date(data_year$DAT_SURVENANCE_SIN, "%Y-%m-%d"), as.Date(paste0(year, "-01-01"), "%Y-%m-%d")), units = "days") + 1))
+  
+  # Calculer le nombre total de jours d'arrêt pour l'année
+  total_jours_arrets <- sum(data_year$jours_arrets)
+  df_y<-data.frame(year,total_jours_arrets)
+  
+  data.AT <-rbind(data.AT,df_y)
+  agr_dt_y <- aggregate(data_year$jours_arrets, by= list(data_year$cle_unique_dsn), sum)
+  agr_dt_y <- cbind(agr_dt_y,rep(year,dim(agr_dt_y)[1]))
+  
+  colnames(agr_dt_y)<-c("Clé","Nb_J","Année")
+  agr_dt<-rbind(agr_dt,agr_dt_y)
+  
+}
+
+aggregate(agr_dt$Nb_J, by= list(agr_dt$Clé), sum)
+
+a<-cbind(agr_dt_2021,rep(2021,dim(agr_dt_2021)[1]))
+colnames(a)<-c("Clé","Nb_J","Année")
+
+help("cbind")
+
+paste(gsub("\\s+", "", bdd_etude$NOM_ASSURE)
+data.AT
+
+nb_jour_ouvre <- 365
+nb_ass_2017<-596926
+data.AT[data.AT$year==2020,'total_jours_arrets']/(nb_jour_ouvre*nb_ass_2017)
+head(data_year)
 
 
 

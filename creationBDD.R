@@ -68,6 +68,7 @@ base.etude<-subset(merged_base.202208,nchar(merged_base.202208$NIR)>10) #uniquem
 
 base.etude<- subset(base.etude,MNT_TOT_REGLEMENT>0) # uniquement les lignes avec mtn >0
 
+write.csv(base.etude,"C:/Users/KDatsi/OneDrive - EY/Documents/PERSONNEL/BDD Mémoire Actuariat Absentéisme/bdd_etude.csv",row.names=FALSE)
 
 
 
