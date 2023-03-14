@@ -59,6 +59,9 @@ dsn_1$cle_unique_dsn <- paste(str_to_upper(gsub("\\s+", "", dsn_1$LB_NOM)), str_
 
 
 merged_base.202208<-merge(dsn_1,base.202208,by.x="cle_unique_dsn",by.y="cle_unique")
+duplicates <- duplicated(merged_base.202208)
+merged_base.202208_nd<-merged_base.202208[!duplicates,]
+
 
 head(merged_base.202208)
 

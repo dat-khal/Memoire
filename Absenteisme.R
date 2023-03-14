@@ -1,6 +1,16 @@
+###########################################################################
+####Library
+library(knitr)
+library(ggplot2)
+
+
+###########################################################################
+#Import data
+
+
 setwd("C:/Users/KDatsi/OneDrive - EY/Documents/PERSONNEL/BDD Mémoire Actuariat Absentéisme")
 bdd <- read.csv("bdd_etude.csv")
-
+unique(bdd$GAR_ELEMENTAIRE)
 
 a<-unique(bdd$SITUATION_DOSSIER)[3]
 bdd_2<-subset(bdd, MNT_TOT_REGLEMENT > 0)  
@@ -20,12 +30,17 @@ bdd_etude$FIN_PER_REGLEMENT <- as.Date(bdd_etude$FIN_PER_REGLEMENT, format = "%d
 bdd_etude$DT_MISE_INVALIDITE <- as.Date(bdd_etude$DT_MISE_INVALIDITE, format = "%d/%m/%Y" )
 
 
-library(knitr)
+gar_IT<-c("ITT     ","ITT_HPRO","ITTM_HPR","INC     ","ITTM    ","ITT_HOSP","ITT_PRO ","ITTA_PRO",
+          "ITTA    ","ITT_MAT ","ITT_MO  ","ITTM_PRO","ITT_ATMC","ITTA_HPR","ITT_AT  ","ITT_LO  ",
+          "ITT_HOHP","ITMM_HPR","ITMA_PRO","ITMM    ","ITT_LD  ","ITT_HOPR")
 
-kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE))
+gar_IP <- c("IPT_HPRO","ITP     ","IPT     ","ITP_HPRO","IPP_HPRO","ITPM_HPR","IPP     ","INV     ",
+            "ITPM    ","ITPA    ","ITPA_PRO","ITP_PRO ","IPP_PRO ","ITPM_PRO","X-IPT   ","IPT_PRO ","INV_CAP ","X-IPP   ","IPT_T_AT")
 
-gar.inv<-as.factor(unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("INV",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))])
-gar.ipt<-unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("IPT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))]
+#kable(sort(table(bdd_etude$GAR_ELEMENTAIRE)[table(bdd_etude$GAR_ELEMENTAIRE)>100], decreasing = TRUE))
+
+#gar.inv<-as.factor(unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("INV",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))])
+#gar.ipt<-unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("IPT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))]
 
 bdd_etude$Nb_jour_couvert <- as.numeric(bdd_etude$FIN_PER_REGLEMENT - bdd_etude$DAT_SURVENANCE_SIN +1)
 bdd_etude<- subset(bdd_etude,Nb_jour_couvert>=0)
@@ -43,8 +58,12 @@ bdd_etude$CAT_PRO <- as.factor(sapply(bdd_etude$CD_OPTION,function(x){if(grepl("
 bdd_etude$Survenance_Annee <- as.numeric(format(bdd_etude$DAT_SURVENANCE_SIN,"%Y"))
 bdd_etude$Survenance_Mois <- format(bdd_etude$DAT_SURVENANCE_SIN,"%B")
 
-bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
-bdd_etude_INV <- rbind(subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.ipt))
+#bdd_etude_ITT1 <- subset(bdd_etude, GAR_ELEMENTAIRE %in% unique(bdd_etude$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude$GAR_ELEMENTAIRE)))] )
+bdd_etude_ITT <- subset(bdd_etude, GAR_ELEMENTAIRE %in% gar_IT)
+
+
+#bdd_etude_INV1 <- rbind(subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude, GAR_ELEMENTAIRE %in% gar.ipt))
+bdd_etude_INV <- subset(bdd_etude, GAR_ELEMENTAIRE %in% gar_IP)
 
 
 
@@ -74,7 +93,7 @@ graph.evol.annee <- ggplot(bdd_etude_ITT2,
 graph.evol.annee
 
 
-
+###########################################################################
 
 
 kable(table(as.factor(bdd_etude_ITT2$Survenance_Annee)),col.names = c("Année de survenance","Nombre de sinistre"))
@@ -284,15 +303,32 @@ bdd$LIB_CONTRACTANT
 
 bdd_etude$CLE_DOUBLON_1 <-paste(bdd_etude$NOM_ASSURE,bdd_etude$PRENOM_ASSURE,bdd_etude$DAT_NAISSANCE_ASS,bdd_etude$DAT_SURVENANCE_SIN)
 bdd_etude$CLE_DOUBLON_2 <-paste(gsub("\\s+", "", bdd_etude$NOM_ASSURE),gsub("\\s+", "", bdd_etude$PRENOM_ASSURE),gsub("\\s+", "", bdd_etude$DAT_NAISSANCE_ASS),gsub("\\s+", "", bdd_etude$DAT_SURVENANCE_SIN),gsub("\\s+", "", bdd_etude$FIN_PER_REGLEMENT))
-gsub("\\s+", "", base.202208$NOM_ASSURE)
-head(bdd_etude$CLE_DOUBLON_2)
+
 
 
 duplicates <- duplicated(bdd_etude$CLE_DOUBLON_2)
 bdd_etude_nd<-bdd_etude[!duplicates,]
 
-bdd_etude_nd_ITT <- subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% unique(bdd_etude_nd$GAR_ELEMENTAIRE)[grepl("ITT",as.character(unique(bdd_etude_nd$GAR_ELEMENTAIRE)))] )
-bdd_etude_nd_INV <- rbind(subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar.inv),subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar.ipt))
+
+
+
+######## TEST base 202208
+base.202208$CLE_DOUBLON_2 <-paste(gsub("\\s+", "", base.202208$NOM_ASSURE),gsub("\\s+", "", base.202208$PRENOM_ASSURE),gsub("\\s+", "", base.202208$DAT_NAISSANCE_ASS),gsub("\\s+", "", base.202208$DAT_SURVENANCE_SIN),gsub("\\s+", "", base.202208$FIN_PER_REGLEMENT))
+
+
+
+duplicates <- duplicated(base.202208)
+base.202208_nd<-base.202208[!duplicates,]
+
+
+
+
+
+bdd_etude_nd_ITT <- subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar_IT)
+bdd_etude_ITT<-subset(bdd_etude_nd_ITT,Nb_jour_couvert <= 1095) 
+
+
+bdd_etude_INV <- subset(bdd_etude_nd, GAR_ELEMENTAIRE %in% gar_IP)
 
 
 bdd_etude_nd$CLE_DOUBLON_1 <-paste(bdd_etude_nd$NOM_ASSURE,bdd_etude_nd$PRENOM_ASSURE,bdd_etude_nd$DAT_NAISSANCE_ASS,bdd_etude_nd$DAT_SURVENANCE_SIN)
@@ -306,8 +342,25 @@ sum(duplicated(bdd_etude))
 #################             Modélisation GLM         ####################
 ###########################################################################
 
+###Arrêts courte durée (<6 mois)
 
-model_ITT <- glm(Nb_jour_couvert ~ SEXE + DEP_NAISS + AGE + CAT_PRO, data = bdd_etude_nd_ITT, family = poisson())
+bdd_etude_ITT_AC <- subset(bdd_etude_ITT,Nb_jour_couvert < 183)
+
+###Arrêts longue durée (>=6 mois)
+
+bdd_etude_ITT_AL <- subset(bdd_etude_ITT,Nb_jour_couvert >= 183)
+
+
+###Densité
+ggplot(bdd_etude_ITT_AC, aes(x=Nb_jour_couvert))+
+  geom_histogram(linetype="dashed")
+
+ggplot(bdd_etude_ITT_AL, aes(x=Nb_jour_couvert))+
+  geom_histogram(linetype="dashed")
+
+
+
+model_ITT <- glm(Nb_jour_couvert ~ SEXE + DEP_NAISS + AGE + CAT_PRO, data = bdd_etude_ITT_AC, family = poisson())
 summary(model_ITT)
 
 
@@ -358,20 +411,15 @@ for (year in 2015:2022){
   
 }
 
-aggregate(agr_dt$Nb_J, by= list(agr_dt$Clé), sum)
+aggregate(agr_dt$Nb_J, by= list(agr_dt$Année), sum)
 
-a<-cbind(agr_dt_2021,rep(2021,dim(agr_dt_2021)[1]))
-colnames(a)<-c("Clé","Nb_J","Année")
+head(agr_dt)
 
-help("cbind")
+agr_dt$Tx_Abs <- agr_dt$Nb_J/365.25
 
-paste(gsub("\\s+", "", bdd_etude$NOM_ASSURE)
-data.AT
+p<-ggplot(agr_dt, aes(x=as.factor(Année),y=Tx_Abs)) +geom_boxplot()
+p
 
-nb_jour_ouvre <- 365
-nb_ass_2017<-596926
-data.AT[data.AT$year==2020,'total_jours_arrets']/(nb_jour_ouvre*nb_ass_2017)
-head(data_year)
-
-
+max(agr_dt$Nb_J)
+summary(agr_dt)
 
